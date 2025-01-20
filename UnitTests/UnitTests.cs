@@ -67,7 +67,7 @@ namespace RhubarbGeekNz.CiscoT7
         [TestMethod]
         public void TestConvertFromCiscoT7()
         {
-            string value = "0600002E4E4F1B";
+            string value = "022A0B490E0B4F285C5D1C1445131D070316";
             using (PowerShell powerShell = PowerShell.Create(initialSessionState))
             {
                 powerShell.AddCommand("ConvertFrom-CiscoT7").AddParameter("InputString", value);
@@ -77,7 +77,7 @@ namespace RhubarbGeekNz.CiscoT7
 
                 SecureString secure = (SecureString)result[0].BaseObject;
                 var password = new System.Net.NetworkCredential(string.Empty, secure).Password;
-                Assert.AreEqual("foobar", password);
+                Assert.AreEqual("Lorem ipsum dolor", password);
             }
         }
     }

@@ -4,7 +4,7 @@
     <TargetFramework>netstandard2.0</TargetFramework>
     <AssemblyName>RhubarbGeekNz.CiscoT7</AssemblyName>
     <Copyright>Copyright © 2025 Roger Brown</Copyright>
-    <Version>1.0.0</Version>
+    <Version>1.0.1</Version>
     <AssemblyTitle>PowerShell Cmdlet for CiscoT7</AssemblyTitle>
     <Product>SciptBlock tools for PowerShell</Product>
     <Company>rhubarb-geek-nz</Company>
