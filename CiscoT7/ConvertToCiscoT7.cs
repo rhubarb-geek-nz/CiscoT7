@@ -19,48 +19,54 @@ namespace RhubarbGeekNz.CiscoT7
         {
             try
             {
-                string HEX = "0123456789ABCDEF";
-                int index = new Random().Next(16) & 0xF;
                 int length = SecureString.Length << 1;
                 char[] stringBuilder = new char[length + 2];
 
-                stringBuilder[0] = HEX[index / 10];
-                stringBuilder[1] = HEX[index % 10];
-
-                IntPtr valuePtr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(SecureString);
-
                 try
                 {
-                    string KEY = "dsfd;kfoA,.iyewrkldJKDHSUBsgvca69834ncxv9873254k;fg87";
+                    string HEX = "0123456789ABCDEF";
+                    int index = new Random().Next(16) & 0xF;
 
-                    for (int i = 0; i < length; i += 2)
+                    stringBuilder[0] = HEX[index / 10];
+                    stringBuilder[1] = HEX[index % 10];
+
+                    IntPtr valuePtr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(SecureString);
+
+                    try
                     {
-                        short unicodeChar = Marshal.ReadInt16(valuePtr, i);
+                        string KEY = "dsfd;kfoA,.iyewrkldJKDHSUBsgvca69834ncxv9873254k;fg87";
 
-                        if ((unicodeChar < ' ') || (unicodeChar > 0x7E))
+                        for (int i = 0; i < length; i += 2)
                         {
-                            throw new IndexOutOfRangeException();
-                        }
+                            short unicodeChar = Marshal.ReadInt16(valuePtr, i);
 
-                        byte value = (byte)(KEY[index++] ^ unicodeChar);
+                            if ((unicodeChar < ' ') || (unicodeChar > 0x7E))
+                            {
+                                throw new IndexOutOfRangeException();
+                            }
 
-                        stringBuilder[2 + i] = HEX[value >> 4];
-                        stringBuilder[3 + i] = HEX[value & 0xF];
+                            byte value = (byte)(KEY[index++] ^ unicodeChar);
 
-                        if (index == KEY.Length)
-                        {
-                            index = 0;
+                            stringBuilder[2 + i] = HEX[value >> 4];
+                            stringBuilder[3 + i] = HEX[value & 0xF];
+
+                            if (index == KEY.Length)
+                            {
+                                index = 0;
+                            }
                         }
                     }
+                    finally
+                    {
+                        Marshal.ZeroFreeCoTaskMemUnicode(valuePtr);
+                    }
+
+                    WriteObject(new String(stringBuilder));
                 }
                 finally
                 {
-                    Marshal.ZeroFreeCoTaskMemUnicode(valuePtr);
+                    Array.Clear(stringBuilder, 0, stringBuilder.Length);
                 }
-
-                WriteObject(new String(stringBuilder));
-
-                Array.Clear(stringBuilder, 0, stringBuilder.Length);
             }
             catch (IndexOutOfRangeException ex)
             {
