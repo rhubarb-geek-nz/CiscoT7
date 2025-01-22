@@ -5,7 +5,6 @@ using System;
 using System.Management.Automation;
 using System.Runtime.InteropServices;
 using System.Security;
-using System.Text;
 
 namespace RhubarbGeekNz.CiscoT7
 {
@@ -14,17 +13,20 @@ namespace RhubarbGeekNz.CiscoT7
     public class ConvertToCiscoT7 : PSCmdlet
     {
         [Parameter(Mandatory = true, Position = 0, ValueFromPipeline = true)]
-        public System.Security.SecureString SecureString;
+        public SecureString SecureString;
 
         protected override void ProcessRecord()
         {
             try
             {
+                string HEX = "0123456789ABCDEF";
                 int index = new Random().Next(16) & 0xF;
-                StringBuilder stringBuilder = new StringBuilder();
-                stringBuilder.Append(index.ToString("D2"));
-
                 int length = SecureString.Length << 1;
+                char[] stringBuilder = new char[length + 2];
+
+                stringBuilder[0] = HEX[index / 10];
+                stringBuilder[1] = HEX[index % 10];
+
                 IntPtr valuePtr = SecureStringMarshal.SecureStringToCoTaskMemUnicode(SecureString);
 
                 try
@@ -41,7 +43,9 @@ namespace RhubarbGeekNz.CiscoT7
                         }
 
                         byte value = (byte)(KEY[index++] ^ unicodeChar);
-                        stringBuilder.Append(value.ToString("X2"));
+
+                        stringBuilder[2 + i] = HEX[value >> 4];
+                        stringBuilder[3 + i] = HEX[value & 0xF];
 
                         if (index == KEY.Length)
                         {
@@ -54,7 +58,9 @@ namespace RhubarbGeekNz.CiscoT7
                     Marshal.ZeroFreeCoTaskMemUnicode(valuePtr);
                 }
 
-                WriteObject(stringBuilder.ToString());
+                WriteObject(new String(stringBuilder));
+
+                Array.Clear(stringBuilder, 0, stringBuilder.Length);
             }
             catch (IndexOutOfRangeException ex)
             {
